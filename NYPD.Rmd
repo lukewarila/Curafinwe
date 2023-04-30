@@ -1,0 +1,90 @@
+---
+title: "NYPD Data Analysis"
+output:
+  html_document: default
+  pdf_document: default
+date: "2023-04-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## A Short Statistical Summary on New York Crime
+
+### Introduction
+
+As you know the responsibility of Police officer is to patrol night and day in in order to maintain peace and prevent crime. However it is difficult for them to know how best to allocate their resources in order to best achieve their goal. They may be unknowingly overstaffed in one part of the city while understaffed in another. This is where the job of the data scientist comes in, to look for patterns in the data and to draw results that optimize the work of the officer.  
+
+
+
+### Preparation of Research
+
+Fist we load in the necessary R Packages for our research:
+
+```{r}
+library(tidyverse)
+```
+
+
+
+### Source
+
+
+I will be reading in data from the Data.Gov historic shootings incident CSV file reported by the NYPD, here is the code:
+
+```{r cars}
+url_in <- "https://data.cityofnewyork.us/api/views/833y-fsy8/rows.csv?accessType=DOWNLOAD"
+NYPD_Data <- read_csv(url_in)
+```
+
+## Visualization 1
+
+#### Occurrence of crime over the course of the day by precint. 
+
+```{r}
+NYPD_TimePlace <- NYPD_Data %>% select(OCCUR_TIME, BORO, PRECINCT)
+ggplot(NYPD_TimePlace, aes(x = PRECINCT, y = OCCUR_TIME, color = BORO)) + geom_point(size = 0.2) 
+```
+
+
+(Bronx = Red, Brooklyn = Yellow, Manhattan = Green, Queens = Blue, Staten Island = Pink)
+
+Analysis and Observation: We can observe the frequency of crime by precinct throughout the day between 2006 and 2022. One notable observation is that crime seems to be the sparsest from sunrise to noon. We can also see that Manhattan, especially in precincts 1 through 20 is much more safe than the Bronx.
+
+## Visualization 2
+
+#### Frequency of Crime by Day from 2006 to 2022
+```{r}
+NYPD_ByDate <- NYPD_Data %>% group_by(OCCUR_DATE) %>% summarise(frequency= n())
+ggplot(NYPD_ByDate, aes(x = OCCUR_DATE, y = frequency)) + geom_point(size = 0.2) 
+```
+
+
+Analysis and Observation: Here I have a less than pretty scatter plot of the frequency of crime every day between 2006 and 2022. I don't have a very sophisticated grasp of R yet so I was unable to table the dates at the bottom. However it is still observable that in the middle of the time period, from around 2011 to 2018, there are noticeably more days with over 10 reportings. 
+
+## Model
+
+#### Projection of Frequency of crime by day over the normal distribution
+
+```{r}
+ qqnorm(NYPD_ByDate$frequency)
+ qqline(NYPD_ByDate$frequency, col = "red")
+```
+
+
+Analysis and Observation: I have projected the daily frequency of crime over the theoretical normal curve using the qqplot function. The graph is thick tailed in the beginning which means any low number of reportings on a given day, such as 1, is far from unexpected. However it is thin tailed at the end, so a large number of reportings such as 30 is far from expected based on the normal distribution. Such Occurrences suggest unusual circumstances.
+
+
+
+## Admission of Bias
+
+
+It is important to know that my research and conclusion may contain many flaws. I am not a very practiced data scientist so my cleaning of data and understanding of it is not comprehensive. Further more the data itself I have collected from the source may have some flaws. I recommend cross examining my studies with any other published research available on the same subject.
+
+
+
+## Conclusion
+
+
+I doubt any of my research will lead to a reduction of crime in New York City, but hey, if one less person is shot because I was messing around with R, then maybe this homework asignment was worth it. 
